@@ -4,9 +4,9 @@ import me.henrique.stockbeer.builder.BeerDTOBuilder;
 import me.henrique.stockbeer.dto.BeerDTO;
 import me.henrique.stockbeer.entity.Beer;
 import me.henrique.stockbeer.exceptions.BeerAlreadyRegisteredException;
-import me.henrique.stockbeer.exceptions.BeerNotFoundException;
 import me.henrique.stockbeer.mapper.BeerMapper;
 import me.henrique.stockbeer.repository.BeerRepository;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -50,5 +50,19 @@ public class BeerServiceTest {
         assertThat(createdBeerDTO.getName(), is(equalTo(expectedBeerDTO.getName())));
         assertThat(createdBeerDTO.getQuantity(), is(equalTo(expectedBeerDTO.getQuantity())));
     }
+
+    @Test
+    void whenAlreadyRegisterBeerInformedThenExceptionShouldBeThrown() {
+        // given
+        BeerDTO expectedBeerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
+        Beer duplicatedBeer = beerMapper.toModel(expectedBeerDTO);
+
+        // when
+        when(beerRepository.findByName(expectedBeerDTO.getName())).thenReturn(Optional.of(duplicatedBeer));
+
+        // then
+        Assertions.assertThrows(BeerAlreadyRegisteredException.class, () -> beerService.createBeer(expectedBeerDTO));
+    }
+
 
 }

@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import me.henrique.stockbeer.dto.BeerDTO;
 import me.henrique.stockbeer.entity.Beer;
 import me.henrique.stockbeer.exceptions.BeerAlreadyRegisteredException;
-import me.henrique.stockbeer.exceptions.BeerNotFoundException;
 import me.henrique.stockbeer.mapper.BeerMapper;
 import me.henrique.stockbeer.repository.BeerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
