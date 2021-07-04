@@ -4,6 +4,7 @@ import me.henrique.stockbeer.builder.BeerDTOBuilder;
 import me.henrique.stockbeer.dto.BeerDTO;
 import me.henrique.stockbeer.entity.Beer;
 import me.henrique.stockbeer.exceptions.BeerAlreadyRegisteredException;
+import me.henrique.stockbeer.exceptions.BeerNotFoundException;
 import me.henrique.stockbeer.mapper.BeerMapper;
 import me.henrique.stockbeer.repository.BeerRepository;
 import org.junit.jupiter.api.Assertions;
@@ -43,9 +44,9 @@ public class BeerServiceTest {
         when(beerRepository.findByName(expectedBeerDTO.getName())).thenReturn(Optional.empty());
         when(beerRepository.save(expectedSavedBeer)).thenReturn(expectedSavedBeer);
 
+        // then
         BeerDTO createdBeerDTO = beerService.createBeer(expectedBeerDTO);
 
-        // then
         assertThat(createdBeerDTO.getId(), is(equalTo(expectedBeerDTO.getId())));
         assertThat(createdBeerDTO.getName(), is(equalTo(expectedBeerDTO.getName())));
         assertThat(createdBeerDTO.getQuantity(), is(equalTo(expectedBeerDTO.getQuantity())));
@@ -64,5 +65,18 @@ public class BeerServiceTest {
         Assertions.assertThrows(BeerAlreadyRegisteredException.class, () -> beerService.createBeer(expectedBeerDTO));
     }
 
+    @Test
+    void whenValidBeerNameIsGivenThenReturnABeer() throws BeerNotFoundException {
+        // given
+        BeerDTO expectedBeerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
+        Beer expectedFoundBeer = beerMapper.toModel(expectedBeerDTO);
 
+        // when
+        when(beerRepository.findByName(expectedFoundBeer.getName())).thenReturn(Optional.of(expectedFoundBeer));
+
+        // then
+        BeerDTO foundBeerDTO = beerService.findByName(expectedBeerDTO.getName());
+
+        assertThat(foundBeerDTO, is(equalTo(expectedBeerDTO)));
+    }
 }
