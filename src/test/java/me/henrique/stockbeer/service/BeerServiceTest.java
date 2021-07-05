@@ -173,4 +173,19 @@ public class BeerServiceTest {
         // then
         assertThrows(BeerStockExcededException.class, () -> beerService.increment(expectedBeerDTO.getId(), quantityToIncrement));
     }
+
+    @Test
+    void whenIncrementAfterSumIsGreatherThanMaxThenThrowException() {
+        // given
+        BeerDTO expectedBeerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
+        Beer expectedBeer = beerMapper.toModel(expectedBeerDTO);
+
+        // when
+        when(beerRepository.findById(expectedBeerDTO.getId())).thenReturn(Optional.of(expectedBeer));
+
+        int quantityToIncrement = 45;
+
+        // then
+        assertThrows(BeerStockExcededException.class, () -> beerService.increment(expectedBeerDTO.getId(), quantityToIncrement));
+    }
 }
