@@ -2,6 +2,7 @@ package me.henrique.stockbeer.controller;
 
 import me.henrique.stockbeer.builder.BeerDTOBuilder;
 import me.henrique.stockbeer.dto.BeerDTO;
+import me.henrique.stockbeer.dto.QuantityDTO;
 import me.henrique.stockbeer.exceptions.BeerNotFoundException;
 import me.henrique.stockbeer.service.BeerService;
 import me.henrique.stockbeer.utils.JsonConvertionUtils;
@@ -168,6 +169,30 @@ public class BeerControllerTest {
         mockMvc.perform(delete(BEER_API_URL_PATH + "/" + INVALID_BEER_ID)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void whenPATCHIsCalledToIncrementStockThenOkStatusIsReturned() throws Exception {
+        // given
+        QuantityDTO quantityDTO = QuantityDTO.builder()
+                .quantity(10)
+                .build();
+
+        BeerDTO beerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
+        beerDTO.setQuantity(beerDTO.getQuantity() + quantityDTO.getQuantity());
+
+        // when
+        when(beerService.increment(VALID_BEER_ID, quantityDTO.getQuantity())).thenReturn(beerDTO);
+
+        // then
+        mockMvc.perform(patch(BEER_API_URL_PATH + "/" + VALID_BEER_ID + BEER_API_SUBPATH_INCREMENT_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(quantityDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name", is(beerDTO.getName())))
+                .andExpect(jsonPath("$.brand", is(beerDTO.getBrand())))
+                .andExpect(jsonPath("$.type", is(beerDTO.getType().toString())))
+                .andExpect(jsonPath("$.quantity", is(beerDTO.getQuantity())));
     }
 
 }
