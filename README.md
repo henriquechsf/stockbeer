@@ -16,9 +16,7 @@ http://localhost:8080/api/v1/beers
 ```
 
 Projeto em Produção e documentação no endereço abaixo:
-```
-https://stockbeer.herokuapp.com/swagger-ui.html
-```
+* [Projeto em Produção e documentação no endereço](https://stockbeer.herokuapp.com/swagger-ui.html)
 
 São necessários os seguintes pré-requisitos para a execução do projeto:
 
