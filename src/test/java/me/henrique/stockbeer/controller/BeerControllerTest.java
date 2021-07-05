@@ -17,8 +17,10 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
+import static me.henrique.stockbeer.utils.JsonConvertionUtils.*;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -56,13 +58,26 @@ public class BeerControllerTest {
         when(beerService.createBeer(beerDTO)).thenReturn(beerDTO);
 
         // then
-        mockMvc.perform(MockMvcRequestBuilders.post(BEER_API_URL_PATH)
+        mockMvc.perform(post(BEER_API_URL_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonConvertionUtils.asJsonString(beerDTO)))
+                .content(asJsonString(beerDTO)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name", is(beerDTO.getName())))
                 .andExpect(jsonPath("$.brand", is(beerDTO.getBrand())))
                 .andExpect(jsonPath("$.type", is(beerDTO.getType().toString())));
+    }
+
+    @Test
+    void whenPostIsCalledWithoutRequiredFieldThenAnErrorIsReturned() throws Exception {
+        // given
+        BeerDTO beerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
+        beerDTO.setBrand(null);
+
+        // then
+        mockMvc.perform(post(BEER_API_URL_PATH)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(beerDTO)))
+                .andExpect(status().isBadRequest());
     }
 
 }
