@@ -4,6 +4,7 @@ import me.henrique.stockbeer.builder.BeerDTOBuilder;
 import me.henrique.stockbeer.dto.BeerDTO;
 import me.henrique.stockbeer.dto.QuantityDTO;
 import me.henrique.stockbeer.exceptions.BeerNotFoundException;
+import me.henrique.stockbeer.exceptions.BeerStockExcededException;
 import me.henrique.stockbeer.service.BeerService;
 import me.henrique.stockbeer.utils.JsonConvertionUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -195,4 +196,23 @@ public class BeerControllerTest {
                 .andExpect(jsonPath("$.quantity", is(beerDTO.getQuantity())));
     }
 
+    @Test
+    void whenPATCHIsCalledToIncrementGreatherThanMaxThenBadRequestStatusIsReturned() throws Exception {
+        // given
+        QuantityDTO quantityDTO = QuantityDTO.builder()
+                .quantity(30)
+                .build();
+
+        BeerDTO beerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
+        beerDTO.setQuantity(beerDTO.getQuantity() + quantityDTO.getQuantity());
+
+        // when
+        when(beerService.increment(VALID_BEER_ID, quantityDTO.getQuantity())).thenThrow(BeerStockExcededException.class);
+
+        // then
+        mockMvc.perform(patch(BEER_API_URL_PATH + "/" + VALID_BEER_ID + BEER_API_SUBPATH_INCREMENT_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(quantityDTO)))
+                .andExpect(status().isBadRequest());
+    }
 }
