@@ -5,8 +5,10 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import me.henrique.stockbeer.dto.BeerDTO;
+import me.henrique.stockbeer.dto.QuantityDTO;
 import me.henrique.stockbeer.exceptions.BeerAlreadyRegisteredException;
 import me.henrique.stockbeer.exceptions.BeerNotFoundException;
+import me.henrique.stockbeer.exceptions.BeerStockExcededException;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -42,4 +44,18 @@ public interface BeerControllerDocs {
             @ApiResponse(code = 404, message = "Beer with given id not found.")
     })
     void deleteById(@PathVariable Long id) throws BeerNotFoundException;
+
+    @ApiOperation(value = "Increment a beer stock")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success beer stock incremented"),
+            @ApiResponse(code = 404, message = "Beer with given id not found.")
+    })
+    public BeerDTO increment(@PathVariable Long id, @RequestBody @Valid QuantityDTO quantityDTO) throws BeerNotFoundException, BeerStockExcededException;
+
+    @ApiOperation(value = "Decrement a beer stock")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success beer stock decremented"),
+            @ApiResponse(code = 404, message = "Beer with given id not found.")
+    })
+    public BeerDTO decrement(@PathVariable Long id, @RequestBody @Valid QuantityDTO quantityDTO) throws BeerNotFoundException, BeerStockExcededException;
 }
