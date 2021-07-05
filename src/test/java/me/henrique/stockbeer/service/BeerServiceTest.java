@@ -5,6 +5,7 @@ import me.henrique.stockbeer.dto.BeerDTO;
 import me.henrique.stockbeer.entity.Beer;
 import me.henrique.stockbeer.exceptions.BeerAlreadyRegisteredException;
 import me.henrique.stockbeer.exceptions.BeerNotFoundException;
+import me.henrique.stockbeer.exceptions.BeerStockExcededException;
 import me.henrique.stockbeer.mapper.BeerMapper;
 import me.henrique.stockbeer.repository.BeerRepository;
 import org.junit.jupiter.api.Assertions;
@@ -136,5 +137,25 @@ public class BeerServiceTest {
 
         verify(beerRepository, times(1)).findById(expectedDeletedBeerDTO.getId());
         verify(beerRepository, times(1)).deleteById(expectedDeletedBeerDTO.getId());
+    }
+
+    @Test
+    void whenIncrementIsCalledThenIncrementBeerStock() throws BeerNotFoundException, BeerStockExcededException {
+        // given
+        BeerDTO expectedBeerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
+        Beer expectedBeer = beerMapper.toModel(expectedBeerDTO);
+
+        // when
+        when(beerRepository.findById(expectedBeerDTO.getId())).thenReturn(Optional.of(expectedBeer));
+        when(beerRepository.save(expectedBeer)).thenReturn(expectedBeer);
+
+        int quantityToIncrement = 10;
+        int expectedQuantityAfterIncrement = expectedBeerDTO.getQuantity() + quantityToIncrement;
+
+        // then
+        BeerDTO incrementedBeerDTO = beerService.increment(expectedBeerDTO.getId(), quantityToIncrement);
+
+        assertThat(expectedQuantityAfterIncrement, equalTo(incrementedBeerDTO.getQuantity()));
+        assertThat(expectedQuantityAfterIncrement, lessThan(expectedBeerDTO.getMax()));
     }
 }

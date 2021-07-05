@@ -5,6 +5,7 @@ import me.henrique.stockbeer.dto.BeerDTO;
 import me.henrique.stockbeer.entity.Beer;
 import me.henrique.stockbeer.exceptions.BeerAlreadyRegisteredException;
 import me.henrique.stockbeer.exceptions.BeerNotFoundException;
+import me.henrique.stockbeer.exceptions.BeerStockExcededException;
 import me.henrique.stockbeer.mapper.BeerMapper;
 import me.henrique.stockbeer.repository.BeerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +47,20 @@ public class BeerService {
     public void deleteById(Long id) throws BeerNotFoundException {
         verifyIfExists(id);
         beerRepository.deleteById(id);
+    }
+
+    public BeerDTO increment(Long id, int quantityToIncrement) throws BeerNotFoundException, BeerStockExcededException {
+        Beer beerToIncrementStock = verifyIfExists(id);
+
+        int quantityAfterIncrement = quantityToIncrement + beerToIncrementStock.getQuantity();
+
+        if (quantityAfterIncrement <= beerToIncrementStock.getMax()) {
+            beerToIncrementStock.setQuantity(beerToIncrementStock.getQuantity() + quantityToIncrement);
+            Beer incrementedBeerStock = beerRepository.save(beerToIncrementStock);
+
+            return beerMapper.toDTO(incrementedBeerStock);
+        }
+        throw new BeerStockExcededException(id, quantityToIncrement);
     }
 
     private Beer verifyIfExists(Long id) throws BeerNotFoundException {
