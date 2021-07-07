@@ -1,7 +1,8 @@
 <h2>Sistema de Gerenciamento de Estoque de Cerveja</h2>
 <h3>API REST com Spring Boot</h3>
 
-Projeto Final desenvolvido no Bootcamp GFT Java 
+Projeto Final desenvolvido no Bootcamp GFT Java <br>
+Desenvolvido utilizando TDD e boas práticas "Clean Architecture"
 
 Para executar o projeto localmente, no terminal digite o seguinte comando:
 
